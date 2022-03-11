@@ -7,6 +7,25 @@ const bodyparser = require('body-parser');
 const {Validation} = require('./validation.js');
 const { body, validationResult } = require('express-validator');
 
+//for swagger
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUI = require('swagger-ui-express');
+
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      title: "MYAPP API",
+      version: '1.0.0',
+    },
+  },
+  apis: ["index.js"],
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api-users', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
+
+
+
 app.use(cors());
 app.use(express.json());
  
@@ -38,6 +57,16 @@ app.get('/', (req, res) => {
   res.send('This is the basic api build using nodes.js + express.js framework')
 })
 
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     description: Get all the users
+ *     responses:
+ *       200:
+ *         description: Success
+ * 
+ */
 
 //Get all users
 app.get('/users', (req, res) => {
@@ -49,7 +78,28 @@ app.get('/users', (req, res) => {
             console.log(err);
     })
 });
-
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     description: create new user in the database
+ *     parameters:
+ *      - Name: title
+ *      - Age: 
+ *      - Email:
+ *      - Gender:
+ *      - Mobile_Number:
+ *      - Birthday:
+ *      - City:
+ *      - State:
+ *      - Country:
+ *      - Address1:
+ *      - Address2:
+ *        required: true
+ *     responses:
+ *       201:
+ *         description: Created
+ */
 app.post('/users',Validation,(req, res) =>{
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -76,7 +126,16 @@ app.post('/users',Validation,(req, res) =>{
   });
   res.send('inserted successfully');
 });
-
+/**
+ * @swagger
+ * /users/:userid:
+ *   delete:
+ *     description: delete the user with the given userid
+ *     responses:
+ *       200:
+ *         description: Success
+ * 
+ */
 app.delete('/users/:userid', (req, res) => {
   mysqlConnection.query('DELETE FROM users WHERE userid = ?', [req.params.userid], (err, rows, fields) => {
       //res.send(req.params);
@@ -87,6 +146,17 @@ app.delete('/users/:userid', (req, res) => {
   })
   
 });
+/**
+ * @swagger
+ * /users/:userid:
+ *   patch:
+ *     description: update the user with the given userid
+ *     parameters:
+ *     responses:
+ *       200:
+ *         description: Success
+ * 
+ */
 
 app.patch('/users/:userid', function(req, res) {
   mysqlConnection.query('SELECT userid FROM users WHERE userid = ?',[req.params.userid], function(err, result, field){
